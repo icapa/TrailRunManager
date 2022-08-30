@@ -1,3 +1,14 @@
 table, th, td {
     border: 1px solid;
-  }
+}
+
+.intime{
+  background-color: #00ff00;
+}
+
+.outtime{
+  background-color: #ff0000;
+}
+.exactime{
+  background-color: #00ffff;
+}

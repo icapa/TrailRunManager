@@ -1,8 +1,6 @@
-const labels = [
-  ];
+const labels = [];
 
-  const data = {
-    
+const data = {    
     labels: labels,
     datasets: [{
         label: 'Elevación',
@@ -15,15 +13,20 @@ const labels = [
         data: [],
     }
     ]
-  };
+};
 
-  const config = {
+const config = {
     type: 'line',
     data: data,
     options: {
         animation:{
             onComplete: (animation)=>{
-                //console.log("Grafica renderizada");
+                console.log("Grafica renderizada");
+                
+                pointsOfInterest.forEach((element,index)=>{
+                    
+
+                }); 
             }
         },
         onClick: (e)=>{
@@ -33,11 +36,15 @@ const labels = [
             console.log("El indice es: " + myChart.config.data.labels.indexOf(dataX));
             console.log("El valor es: " + myChart.config.data.datasets[0].data[myChart.config.data.labels.indexOf(dataX)]);
             console.log("El varlor en labels es: "+myChart.config.data.labels[myChart.config.data.labels.indexOf(dataX)]);
+            
+            addPoiBasic(myChart.config.data.labels[myChart.config.data.labels.indexOf(dataX)],
+                myChart.config.data.datasets[0].data[myChart.config.data.labels.indexOf(dataX)]);
         }
-    },
-    
-  };
+    },  
 
+};
+
+var actualGpxName;
 
 function reduceGpx(labels,data,step){
     newLabelData = labels.map((e)=>{
@@ -99,9 +106,26 @@ document.querySelector("#file-input").addEventListener('change',(e)=>{
 
         myChart.update();
         document.getElementById('myChart').style.display="block";
+
+
+        addPoiBasic(myChart.config.data.labels[0],myChart.config.data.datasets[0].data[0]);
+        
+        
+        
+        /*
+        loadPoiTable();
+        
+        if (pointsOfInterest.length==0){
+            addPoiBasic(myChart.config.data.labels[0],myChart.config.data.datasets[0].data[0]);
+        }else{
+            
+            renderPoints(onInputDataChange);
+        }
+        */
         
     })
     reader.readAsText(file);
+   
 
 });
 
