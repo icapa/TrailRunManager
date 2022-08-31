@@ -37,8 +37,18 @@ function loadPoiTable(){
     console.log(testInput);
     
     if (testInput!=null){
-        Object.assign(pointsOfInterest,testInput);
-        calculatePointTable();
+        testInput.forEach(element => {
+            
+            if (element['estimTime']!=null)
+                element['estimTime']=new Date(element['estimTime']);
+             
+            if (element['cutTime']!= null) 
+                element['cutTime']=new Date(element['cutTime']);
+
+            pointsOfInterest.push(element);
+        });
+        //Object.assign(pointsOfInterest,testInput);
+        //calculatePointTable();
 
         
     }

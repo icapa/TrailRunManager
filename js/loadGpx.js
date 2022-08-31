@@ -108,12 +108,13 @@ document.querySelector("#file-input").addEventListener('change',(e)=>{
         document.getElementById('myChart').style.display="block";
 
 
-        addPoiBasic(myChart.config.data.labels[0],myChart.config.data.datasets[0].data[0]);
+    
         
         
         
-        /*
+        
         loadPoiTable();
+        
         
         if (pointsOfInterest.length==0){
             addPoiBasic(myChart.config.data.labels[0],myChart.config.data.datasets[0].data[0]);
@@ -121,7 +122,7 @@ document.querySelector("#file-input").addEventListener('change',(e)=>{
             
             renderPoints(onInputDataChange);
         }
-        */
+        
         
     })
     reader.readAsText(file);
