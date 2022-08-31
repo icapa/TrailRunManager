@@ -13,10 +13,9 @@ let poiBasic = ()=>{
         level: null,
         minkm: null,
         timeDiff:null,
+        accumDiff: null,
         marginCut: null,
         food: null
-
-        
     };
 }
 
@@ -135,10 +134,14 @@ function calculatePointTable(){
             pointsOfInterest[index]['estimTime']=prueba;
             pointsOfInterest[index]['minkm']=60/pointsOfInterest[index]['vkph'];
             pointsOfInterest[index]['diffKm']=pointsOfInterest[index]['km']-pointsOfInterest[index-1]['km'];
+            
             pointsOfInterest[index]['level']=pointsOfInterest[index]['height']-pointsOfInterest[index-1]['height'];
             
             let timeTime=(pointsOfInterest[index]['estimTime']-pointsOfInterest[index-1]['estimTime'])/1000;
             pointsOfInterest[index]['timeDiff']=timeTime;
+
+            let timeAccum=(pointsOfInterest[index]['estimTime']-pointsOfInterest[0]['estimTime'])/1000;
+            pointsOfInterest[index]['accumDiff']=timeAccum;
 
 
             if (pointsOfInterest[index]['cutTime']!=null){
@@ -187,6 +190,17 @@ function renderPoints(onInputDataChange){
                     ":"+seg.toLocaleString('es-EU',{minimumIntegerDigits:2,useGrouping:false})
 
                 cell.innerHTML=timeString;
+            }else if (key==='accumDiff'){
+                let hours= element[key]/60/60;
+                let floorHours=Math.floor(hours);
+                let min=(hours-floorHours)*60;
+                let floorMin = Math.floor(min);
+                let seg=Math.round((min-floorMin)*60);
+                let timeString = element[key]==null?'':floorHours.toLocaleString('es-EU',{minimumIntegerDigits:2,useGrouping:false})+
+                    ":"+floorMin.toLocaleString('es-EU',{minimumIntegerDigits:2,useGrouping:false})+
+                    ":"+seg.toLocaleString('es-EU',{minimumIntegerDigits:2,useGrouping:false})
+
+                cell.innerHTML=timeString;
             }
             
             else if (key==='minkm'){
@@ -199,6 +213,7 @@ function renderPoints(onInputDataChange){
             }else if (key==='diffKm'){
                 var diffKmString = element[key]==null?'':element[key].toLocaleString('es-EU',{maximumFractionDigits:2,useGrouping:false});
                 cell.innerHTML=diffKmString;
+           
             }else if(key==='level'){
                 var diffLevel=element[key]==null?'':element[key].toLocaleString('es-EU',{maximumFractionDigits:2,useGrouping:false});
                 cell.innerHTML=diffLevel;
