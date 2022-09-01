@@ -46,7 +46,7 @@ const config = {
 
 var actualGpxName;
 
-function reduceGpx(labels,data,step){
+function reduceGpx(labels,data,time,step){
     newLabelData = labels.map((e)=>{
         return Math.round(e/step);
     })
@@ -67,7 +67,10 @@ function reduceGpx(labels,data,step){
     returnData = newIndex.map((e)=>{
         return data[e];
     })
-    return{'labels':returnLabels,'data':returnData};
+    returnTime = newIndex.map((e)=>{
+        return time[e];
+    })
+    return{'labels':returnLabels,'data':returnData,'time':returnTime};
 }
 
 
@@ -81,7 +84,24 @@ function reduceGpx(labels,data,step){
 var gpx = new gpxParser(); //Create gpxParser Object
 var myChart = new Chart(document.getElementById('myChart'),config);
 
+var gpxResult = new gpxParser();    // Object Parser
 
+document.querySelector("#file-input-result").addEventListener('change',(e)=>{
+    let file = e.target.files[0];
+    let reader = new FileReader();
+    reader.addEventListener('load',(e)=>{
+        let text = e.target.result;
+        gpxResult.parse(text);
+        var newData = reduceGpx(gpxResult.tracks[0].distance.cumul,
+                                gpxResult.tracks[0].points.map((e)=>{return e.ele}),
+                                gpxResult.tracks[0].points.map((e)=>{return e.time}),100);
+
+        calculatePoiResult(newData.labels,newData.time);
+        renderPoints(null,'tableResult',pointsOfInterestResult);
+    });
+    reader.readAsText(file);
+
+});
 
 
 document.querySelector("#file-input").addEventListener('change',(e)=>{
@@ -91,7 +111,9 @@ document.querySelector("#file-input").addEventListener('change',(e)=>{
         let text = e.target.result;
         gpx.parse(text);
         
-        var newData = reduceGpx(gpx.tracks[0].distance.cumul, gpx.tracks[0].points.map((e)=>{return e.ele}),100);
+        var newData = reduceGpx(gpx.tracks[0].distance.cumul, 
+                                gpx.tracks[0].points.map((e)=>{return e.ele}),
+                                gpx.tracks[0].points.map((e)=>{return e.time}),100);
         
 
         
@@ -120,7 +142,7 @@ document.querySelector("#file-input").addEventListener('change',(e)=>{
             addPoiBasic(myChart.config.data.labels[0],myChart.config.data.datasets[0].data[0]);
         }else{
             
-            renderPoints(onInputDataChange);
+            renderPoints(onInputDataChange,'tablePoi',pointsOfInterest);
         }
         
         

@@ -1,6 +1,8 @@
 
 let pointsOfInterest=[];
 
+let pointsOfInterestResult=[];
+
 let poiBasic = ()=>{   
 
     return {
@@ -17,6 +19,34 @@ let poiBasic = ()=>{
         marginCut: null,
         food: null
     };
+}
+
+function calculatePoiResult(theKm,theTime){
+
+    pointsOfInterestResult=[];
+    pointsOfInterest.forEach((element,index)=>{
+        let theIndex = theKm.indexOf(element.km);
+        if (theIndex>=0){
+            let newPoi = poiBasic();
+            let theActualTime = theTime[theIndex];
+            newPoi.estimTime=theActualTime;
+            newPoi.km=theKm[theIndex];
+            newPoi.height=pointsOfInterest[index].height;
+            newPoi.cutTime=pointsOfInterest[index].cutTime;
+            if (index==0){  // Adjust the race init time
+                pointsOfInterest[0].estimTime = theActualTime;
+                newPoi.kmph=null;
+                calculatePointTable(pointsOfInterest);
+            }else{
+                let timeLapse = newPoi.estimTime - pointsOfInterestResult[index-1].estimTime;
+                let timeLapseHour = timeLapse/1000/60/60;
+                let kmph = (newPoi.km-pointsOfInterestResult[index-1].km)/timeLapseHour;
+                newPoi.vkph=kmph;
+            }
+            pointsOfInterestResult.push(newPoi);
+        }
+
+    });
 }
 
 
@@ -68,13 +98,13 @@ function addPoiBasic(km, height){
         pointsOfInterest[0]['vkph']=null;
 
     }
-    calculatePointTable();
-    renderPoints(onInputDataChange);
+    calculatePointTable(pointsOfInterest);
+    renderPoints(onInputDataChange,'tablePoi',pointsOfInterest);
 } 
 function removePoi(index){
     pointsOfInterest.splice(index,1);
-    calculatePointTable();
-    renderPoints(onInputDataChange);
+    calculatePointTable(pointsOfInterest);
+    renderPoints(onInputDataChange,'tablePoi',pointsOfInterest);
 }
 
 
@@ -87,8 +117,8 @@ let onInputDataChange = (element)=>{
     let key=elementArray[0];
     let index=elementArray[1];
     pointsOfInterest[index][key]=parseFloat(element.currentTarget.value);
-    calculatePointTable();
-    renderPoints(onInputDataChange);
+    calculatePointTable(pointsOfInterest);
+    renderPoints(onInputDataChange,'tablePoi',pointsOfInterest);
 }
 
 let onFoodClickElement = (element)=>{
@@ -97,8 +127,8 @@ let onFoodClickElement = (element)=>{
     let food = prompt('Avituallamiento: Agua[A], Comida[C]?');
     if (food!=null){
         pointsOfInterest[elementArray]['food']=food.split(' ');
-        calculatePointTable();
-        renderPoints(onInputDataChange);
+        calculatePointTable(pointsOfInterest);
+        renderPoints(onInputDataChange,'tablePoi',pointsOfInterest);
     }
 }
 let onClickGuardar = (element)=>{
@@ -117,36 +147,36 @@ let onCutTimeClick = (element)=>{
             newDateCut.setHours(hour,min,0);
             pointsOfInterest[elementArray]['cutTime']=newDateCut;
         }        
-        calculatePointTable();
-        renderPoints(onInputDataChange);
+        calculatePointTable(pointsOfInterest);
+        renderPoints(onInputDataChange,'tablePoi',pointsOfInterest);
 
     }
 }
 
-function calculatePointTable(){
-    pointsOfInterest.forEach((e,index)=>{
+function calculatePointTable(thePoints){
+    thePoints.forEach((e,index)=>{
         if (index!=0){
-            let tAnt = pointsOfInterest[index-1]['estimTime'];
-            let diff = pointsOfInterest[index]['km']-pointsOfInterest[index-1]['km'];
-            let diffTime = (diff/pointsOfInterest[index]['vkph'])*60*60*1000;
+            let tAnt = thePoints[index-1]['estimTime'];
+            let diff = thePoints[index]['km']-pointsOfInterest[index-1]['km'];
+            let diffTime = (diff/thePoints[index]['vkph'])*60*60*1000;
             let prueba = new Date(tAnt.getTime()+diffTime)
             
-            pointsOfInterest[index]['estimTime']=prueba;
-            pointsOfInterest[index]['minkm']=60/pointsOfInterest[index]['vkph'];
-            pointsOfInterest[index]['diffKm']=pointsOfInterest[index]['km']-pointsOfInterest[index-1]['km'];
+            thePoints[index]['estimTime']=prueba;
+            thePoints[index]['minkm']=60/thePoints[index]['vkph'];
+            thePoints[index]['diffKm']=thePoints[index]['km']-thePoints[index-1]['km'];
             
-            pointsOfInterest[index]['level']=pointsOfInterest[index]['height']-pointsOfInterest[index-1]['height'];
+            thePoints[index]['level']=thePoints[index]['height']-thePoints[index-1]['height'];
             
-            let timeTime=(pointsOfInterest[index]['estimTime']-pointsOfInterest[index-1]['estimTime'])/1000;
-            pointsOfInterest[index]['timeDiff']=timeTime;
+            let timeTime=(thePoints[index]['estimTime']-thePoints[index-1]['estimTime'])/1000;
+            thePoints[index]['timeDiff']=timeTime;
 
-            let timeAccum=(pointsOfInterest[index]['estimTime']-pointsOfInterest[0]['estimTime'])/1000;
-            pointsOfInterest[index]['accumDiff']=timeAccum;
+            let timeAccum=(thePoints[index]['estimTime']-thePoints[0]['estimTime'])/1000;
+            thePoints[index]['accumDiff']=timeAccum;
 
 
-            if (pointsOfInterest[index]['cutTime']!=null){
-                let marginTime = (pointsOfInterest[index]['cutTime']-pointsOfInterest[index]['estimTime'])/1000;
-                pointsOfInterest[index]['marginCut']=marginTime;
+            if (thePoints[index]['cutTime']!=null){
+                let marginTime = (thePoints[index]['cutTime']-thePoints[index]['estimTime'])/1000;
+                thePoints[index]['marginCut']=marginTime;
             }
 
             
@@ -156,8 +186,8 @@ function calculatePointTable(){
 
 
 
-function renderPoints(onInputDataChange){
-    let myTable= document.getElementById('myTable');
+function renderPoints(onInputDataChange,theTable,thePoints){
+    let myTable= document.getElementById(theTable);
     myTable.textContent='';
     var row = myTable.insertRow();
     Object.keys(poiBasic()).forEach(key=>{
@@ -165,15 +195,16 @@ function renderPoints(onInputDataChange){
         cell.innerHTML=key;
     })
 
-    pointsOfInterest.forEach((element,index) => {
+    thePoints.forEach((element,index) => {
         var row = myTable.insertRow();
         Object.keys(element).forEach(key=>{
             var cell = row.insertCell();
             if(key==='vkph'){
                 let theValue = element[key]==null?'':element[key];
-                let theId = key+"_"+pointsOfInterest.indexOf(element).toString();
+                let theId = key+"_"+thePoints.indexOf(element).toString();
                 cell.innerHTML="<input type='number' style='width: 50px' maxlength='5' value='"+theValue+"' id='"+theId+"'>"
-                document.getElementById(theId).addEventListener('change',onInputDataChange.bind(element));
+                
+                if (onInputDataChange) document.getElementById(theId).addEventListener('change',onInputDataChange.bind(element));
                         
             }else if (key==='estimTime'){
                 let timeString = element[key]==null?'':element[key].toTimeString().split(' ')[0];
@@ -220,12 +251,12 @@ function renderPoints(onInputDataChange){
                 
             }else if (key==='food'){
                 cell.id='food_'+index.toString();
-                cell.addEventListener('click',onFoodClickElement.bind(element));
+                if (onInputDataChange) cell.addEventListener('click',onFoodClickElement.bind(element));
                 cell.innerHTML=element[key];
             }
             else if (key==='cutTime'){
                 cell.id='cuttime_'+index.toString();
-                cell.addEventListener('click',onCutTimeClick.bind(element));
+                if (onInputDataChange) cell.addEventListener('click',onCutTimeClick.bind(element));
                 let timeString = element[key]==null?'':element[key].toTimeString().split(' ')[0];
                 cell.innerHTML=timeString;
             }else if (key==='marginCut'){
@@ -258,18 +289,20 @@ function renderPoints(onInputDataChange){
             }
             
         })
-        if (index!==0){
-            var buttonCell = row.insertCell();
-            let buttonId = "delete_"+index.toString();
-            buttonCell.innerHTML="<button id='"+buttonId+"'>Delete</button>"
-            document.getElementById(buttonId).addEventListener('click',onClickDelete.bind(element));
+        if (onInputDataChange){
+            if (index!==0){
+                var buttonCell = row.insertCell();
+                let buttonId = "delete_"+index.toString();
+                buttonCell.innerHTML="<button id='"+buttonId+"'>Delete</button>"
+                document.getElementById(buttonId).addEventListener('click',onClickDelete.bind(element));
+            }
         }
         
 
     });
     var saveButton= myTable.insertRow();
     var buttonCell = saveButton.insertCell();
-    buttonCell.colSpan="11";
+    buttonCell.colSpan="12";
     buttonCell.align='center';
     buttonCell.innerHTML="<button id='save_table'>Guardar</button><button id='load_table'>Cargar</button>"
     //buttonCell.addEventListener('click',onClickGuardar.bind(element));
