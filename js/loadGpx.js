@@ -97,6 +97,7 @@ document.querySelector("#file-input-result").addEventListener('change',(e)=>{
                                 gpxResult.tracks[0].points.map((e)=>{return e.time}),100);
 
         calculatePoiResult(newData.labels,newData.time);
+        calculatePointTable(pointsOfInterestResult);
         renderPoints(null,'tableResult',pointsOfInterestResult);
     });
     reader.readAsText(file);

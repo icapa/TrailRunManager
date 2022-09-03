@@ -35,18 +35,48 @@ function calculatePoiResult(theKm,theTime){
             newPoi.cutTime=pointsOfInterest[index].cutTime;
             if (index==0){  // Adjust the race init time
                 pointsOfInterest[0].estimTime = theActualTime;
-                newPoi.kmph=null;
+                newPoi.vkph=null;
                 calculatePointTable(pointsOfInterest);
+                renderPoints(onInputDataChange,'tablePoi',pointsOfInterest);
             }else{
                 let timeLapse = newPoi.estimTime - pointsOfInterestResult[index-1].estimTime;
                 let timeLapseHour = timeLapse/1000/60/60;
                 let kmph = (newPoi.km-pointsOfInterestResult[index-1].km)/timeLapseHour;
                 newPoi.vkph=kmph;
             }
+            if (pointsOfInterest[index].cutTime!=null){
+                pointsOfInterest[index].cutTime.setDate(pointsOfInterest[0].estimTime.getDate());
+                pointsOfInterest[index].cutTime.setMonth(pointsOfInterest[0].estimTime.getMonth());
+                pointsOfInterest[index].cutTime.setFullYear(pointsOfInterest[0].estimTime.getFullYear());
+                
+            }
             pointsOfInterestResult.push(newPoi);
+        }else{
+            if (index==pointsOfInterest.length-1){
+                if (pointsOfInterest[index].cutTime!=null){
+                    pointsOfInterest[index].cutTime.setDate(pointsOfInterest[0].estimTime.getDate());
+                    pointsOfInterest[index].cutTime.setMonth(pointsOfInterest[0].estimTime.getMonth());
+                    pointsOfInterest[index].cutTime.setFullYear(pointsOfInterest[0].estimTime.getFullYear());   
+                }
+                pointsOfInterest[index].km=theKm[theKm.length-1];
+                calculatePointTable(pointsOfInterest);
+                renderPoints(onInputDataChange,'tablePoi',pointsOfInterest);
+                let newPoi = poiBasic();
+                let theActualTime = theTime[theTime.length-1];
+                newPoi.estimTime=theActualTime;
+                newPoi.km=theKm[theKm.length-1];
+                newPoi.height=pointsOfInterest[index].height;
+                newPoi.cutTime=pointsOfInterest[index].cutTime;
+                let timeLapse = newPoi.estimTime - pointsOfInterestResult[index-1].estimTime;
+                let timeLapseHour = timeLapse/1000/60/60;
+                let kmph = (newPoi.km-pointsOfInterestResult[index-1].km)/timeLapseHour;
+                newPoi.vkph=kmph;
+                pointsOfInterestResult.push(newPoi);
+                
+            }
         }
-
     });
+    
 }
 
 
@@ -300,13 +330,15 @@ function renderPoints(onInputDataChange,theTable,thePoints){
         
 
     });
-    var saveButton= myTable.insertRow();
-    var buttonCell = saveButton.insertCell();
-    buttonCell.colSpan="12";
-    buttonCell.align='center';
-    buttonCell.innerHTML="<button id='save_table'>Guardar</button><button id='load_table'>Cargar</button>"
-    //buttonCell.addEventListener('click',onClickGuardar.bind(element));
-    document.getElementById('save_table').addEventListener('click',onClickGuardar.bind(this));
+    if (onInputDataChange){
+        var saveButton= myTable.insertRow();
+        var buttonCell = saveButton.insertCell();
+        buttonCell.colSpan="12";
+        buttonCell.align='center';
+        buttonCell.innerHTML="<button id='save_table'>Guardar</button><button id='load_table'>Cargar</button>"
+        //buttonCell.addEventListener('click',onClickGuardar.bind(element));
+        document.getElementById('save_table').addEventListener('click',onClickGuardar.bind(this));
+    }
 
 }
 
