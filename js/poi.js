@@ -123,8 +123,25 @@ function addPoiBasic(km, height){
     pointsOfInterest.push(poi);
     if (pointsOfInterest.length==1){
         var t = new Date();
-        t.setHours(10,0,0);
-        pointsOfInterest[0]['estimTime']=t;
+        
+        let cur= prompt("Hora de inicio de la carrera:");
+        if (cur!=null){
+            arrayTime=cur.split(":");
+            let hour = parseInt(arrayTime[0]);
+            let min = parseInt(arrayTime[1]);
+            if (!isNaN(hour) && !isNaN(min)){
+                let newDateCut = new Date(pointsOfInterest[0]['estimTime']);
+                t.setHours(hour,min,0);
+                pointsOfInterest[0]['estimTime']=t;
+            }     
+            else{
+                pointsOfInterest[0]['estimTime']=null;
+            }   
+        }
+        else{
+            pointsOfInterest[0]['estimTime']=null;
+        }
+
         pointsOfInterest[0]['vkph']=null;
 
     }
@@ -208,7 +225,6 @@ function calculatePointTable(thePoints){
                 let marginTime = (thePoints[index]['cutTime']-thePoints[index]['estimTime'])/1000;
                 thePoints[index]['marginCut']=marginTime;
             }
-
             
         }
     })
